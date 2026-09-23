@@ -1,11 +1,11 @@
 import axios from 'axios';
-import { ReconciliationResult, PickedFile } from '../types/reconciliation.types';
+import { ReconciliationResult, PickedFile, HistoryEntry } from '../types/reconciliation.types';
 
-const API_BASE_URL = 'http://192.168.0.12:8000';
+const API_BASE_URL = 'https://conciliacr-api.onrender.com';
 
 export const reconciliationApi = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000,
+  timeout: 60000,
 });
 
 export async function reconcileFiles(
@@ -32,5 +32,10 @@ export async function reconcileFiles(
     { headers: { 'Content-Type': 'multipart/form-data' } }
   );
 
+  return response.data;
+}
+
+export async function fetchHistory(): Promise<HistoryEntry[]> {
+  const response = await reconciliationApi.get<HistoryEntry[]>('/history');
   return response.data;
 }

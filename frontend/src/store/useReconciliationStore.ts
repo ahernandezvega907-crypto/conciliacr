@@ -14,6 +14,31 @@ interface ReconciliationState {
   reset: () => void;
 }
 
+function buildErrorMessage(err: any): string {
+  if (err?.code === 'ECONNABORTED') {
+    return 'El servidor tardó demasiado en responder. Probá de nuevo en unos segundos.';
+  }
+
+  if (err?.message === 'Network Error') {
+    return 'No se pudo conectar al servidor. Revisá tu conexión a internet e intentá de nuevo.';
+  }
+
+  const backendDetail = err?.response?.data?.detail;
+  if (typeof backendDetail === 'string') {
+    return backendDetail;
+  }
+
+  const status = err?.response?.status;
+  if (status === 400) {
+    return 'Uno de los archivos no tiene el formato esperado. Verificá que tenga columnas de fecha, monto y descripción.';
+  }
+  if (status && status >= 500) {
+    return 'Ocurrió un error en el servidor al procesar los archivos. Intentá de nuevo en unos minutos.';
+  }
+
+  return 'Error desconocido al conciliar los archivos. Intentá de nuevo.';
+}
+
 export const useReconciliationStore = create<ReconciliationState>((set, get) => ({
   bankFile: null,
   ledgerFile: null,
@@ -38,11 +63,7 @@ export const useReconciliationStore = create<ReconciliationState>((set, get) => 
       const result = await reconcileFiles(bankFile, ledgerFile);
       set({ result, isLoading: false });
     } catch (err: any) {
-      const message =
-        err?.response?.data?.detail ??
-        err?.message ??
-        'Error desconocido al conciliar los archivos.';
-      set({ error: message, isLoading: false });
+      set({ error: buildErrorMessage(err), isLoading: false });
     }
   },
 

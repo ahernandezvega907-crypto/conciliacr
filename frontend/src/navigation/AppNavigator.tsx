@@ -3,10 +3,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import UploadScreen from '../screens/UploadScreen';
 import ResultsScreen from '../screens/ResultsScreen';
+import HistoryScreen from '../screens/HistoryScreen';
 
 export type RootStackParamList = {
   Upload: undefined;
   Results: undefined;
+  History: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -17,6 +19,7 @@ export default function AppNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Upload" component={UploadScreen} />
         <Stack.Screen name="Results" component={ResultsScreen} />
+        <Stack.Screen name="History" component={HistoryScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

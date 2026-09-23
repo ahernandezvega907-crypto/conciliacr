@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "frontend",
+    "name": "ConciliaCR",
     "slug": "frontend",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -11,15 +11,21 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#2563EB",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.armandoleo.conciliacr"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "98b3a1d1-1210-45a0-bdce-9309ec218743"
+      }
     }
   }
 }

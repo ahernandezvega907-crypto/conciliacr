@@ -2,6 +2,8 @@ import os
 from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from sqlalchemy import desc
+from typing import List
 
 from models import get_db, ReconciliationJob
 from parsers import parse_file
@@ -9,8 +11,6 @@ from reconciliation import reconcile
 
 app = FastAPI(title="ConciliaCR API")
 
-# En producción, restringir a los dominios reales de tu app
-# (por ahora "*" para no bloquearte mientras probás desde Expo Go)
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 
 app.add_middleware(
@@ -61,3 +61,30 @@ async def reconcile_endpoint(
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error interno: {str(e)}")
+
+
+@app.get("/history")
+def get_history(limit: int = 50, db: Session = Depends(get_db)):
+    jobs: List[ReconciliationJob] = (
+        db.query(ReconciliationJob)
+        .order_by(desc(ReconciliationJob.created_at))
+        .limit(limit)
+        .all()
+    )
+
+    return [
+        {
+            "id": job.id,
+            "filename_bank": job.filename_bank,
+            "filename_ledger": job.filename_ledger,
+            "total_bank_records": job.total_bank_records,
+            "total_ledger_records": job.total_ledger_records,
+            "matched_count": job.matched_count,
+            "unmatched_bank_count": job.unmatched_bank_count,
+            "unmatched_ledger_count": job.unmatched_ledger_count,
+            "total_amount_matched": job.total_amount_matched,
+            "total_amount_discrepancy": job.total_amount_discrepancy,
+            "created_at": job.created_at.isoformat() if job.created_at else None,
+        }
+        for job in jobs
+    ]

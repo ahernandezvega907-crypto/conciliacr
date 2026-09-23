@@ -34,3 +34,17 @@ export interface PickedFile {
   name: string;
   mimeType?: string;
 }
+
+export interface HistoryEntry {
+  id: number;
+  filename_bank: string;
+  filename_ledger: string;
+  total_bank_records: number;
+  total_ledger_records: number;
+  matched_count: number;
+  unmatched_bank_count: number;
+  unmatched_ledger_count: number;
+  total_amount_matched: number;
+  total_amount_discrepancy: number;
+  created_at: string | null;
+}
