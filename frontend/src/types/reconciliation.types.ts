@@ -37,6 +37,7 @@ export interface PickedFile {
 
 export interface HistoryEntry {
   id: number;
+  client_name: string | null;
   filename_bank: string;
   filename_ledger: string;
   total_bank_records: number;

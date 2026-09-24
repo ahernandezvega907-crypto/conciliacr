@@ -1,9 +1,9 @@
 import os
-from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
-from typing import List
+from typing import List, Optional
 
 from models import get_db, ReconciliationJob
 from parsers import parse_file
@@ -30,6 +30,8 @@ def health():
 async def reconcile_endpoint(
     bank_statement: UploadFile = File(...),
     internal_ledger: UploadFile = File(...),
+    device_id: Optional[str] = Form(None),
+    client_name: Optional[str] = Form(None),
     db: Session = Depends(get_db),
 ):
     try:
@@ -42,6 +44,8 @@ async def reconcile_endpoint(
         result = reconcile(bank_records, ledger_records)
 
         job = ReconciliationJob(
+            device_id=device_id,
+            client_name=client_name,
             filename_bank=bank_statement.filename,
             filename_ledger=internal_ledger.filename,
             total_bank_records=result["summary"]["total_bank_records"],
@@ -64,17 +68,17 @@ async def reconcile_endpoint(
 
 
 @app.get("/history")
-def get_history(limit: int = 50, db: Session = Depends(get_db)):
-    jobs: List[ReconciliationJob] = (
-        db.query(ReconciliationJob)
-        .order_by(desc(ReconciliationJob.created_at))
-        .limit(limit)
-        .all()
-    )
+def get_history(device_id: Optional[str] = None, limit: int = 50, db: Session = Depends(get_db)):
+    query = db.query(ReconciliationJob)
+    if device_id:
+        query = query.filter(ReconciliationJob.device_id == device_id)
+
+    jobs: List[ReconciliationJob] = query.order_by(desc(ReconciliationJob.created_at)).limit(limit).all()
 
     return [
         {
             "id": job.id,
+            "client_name": job.client_name,
             "filename_bank": job.filename_bank,
             "filename_ledger": job.filename_ledger,
             "total_bank_records": job.total_bank_records,

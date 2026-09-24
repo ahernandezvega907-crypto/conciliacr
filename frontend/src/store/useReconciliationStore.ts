@@ -5,11 +5,13 @@ import { reconcileFiles } from '../api/reconciliationApi';
 interface ReconciliationState {
   bankFile: PickedFile | null;
   ledgerFile: PickedFile | null;
+  clientName: string;
   result: ReconciliationResult | null;
   isLoading: boolean;
   error: string | null;
   setBankFile: (file: PickedFile) => void;
   setLedgerFile: (file: PickedFile) => void;
+  setClientName: (name: string) => void;
   runReconciliation: () => Promise<void>;
   reset: () => void;
 }
@@ -42,15 +44,17 @@ function buildErrorMessage(err: any): string {
 export const useReconciliationStore = create<ReconciliationState>((set, get) => ({
   bankFile: null,
   ledgerFile: null,
+  clientName: '',
   result: null,
   isLoading: false,
   error: null,
 
   setBankFile: (file) => set({ bankFile: file, error: null }),
   setLedgerFile: (file) => set({ ledgerFile: file, error: null }),
+  setClientName: (name) => set({ clientName: name }),
 
   runReconciliation: async () => {
-    const { bankFile, ledgerFile } = get();
+    const { bankFile, ledgerFile, clientName } = get();
 
     if (!bankFile || !ledgerFile) {
       set({ error: 'Debes seleccionar ambos archivos.' });
@@ -60,7 +64,7 @@ export const useReconciliationStore = create<ReconciliationState>((set, get) => 
     set({ isLoading: true, error: null });
 
     try {
-      const result = await reconcileFiles(bankFile, ledgerFile);
+      const result = await reconcileFiles(bankFile, ledgerFile, clientName);
       set({ result, isLoading: false });
     } catch (err: any) {
       set({ error: buildErrorMessage(err), isLoading: false });
@@ -68,5 +72,12 @@ export const useReconciliationStore = create<ReconciliationState>((set, get) => 
   },
 
   reset: () =>
-    set({ bankFile: null, ledgerFile: null, result: null, error: null, isLoading: false }),
+    set({
+      bankFile: null,
+      ledgerFile: null,
+      clientName: '',
+      result: null,
+      error: null,
+      isLoading: false,
+    }),
 }));

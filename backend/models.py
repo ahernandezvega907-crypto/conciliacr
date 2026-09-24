@@ -8,8 +8,6 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./conciliacr.db")
 
-# Render entrega la URL de Postgres con el prefijo "postgres://",
-# pero SQLAlchemy 2.x requiere "postgresql://"
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
@@ -24,6 +22,8 @@ class ReconciliationJob(Base):
     __tablename__ = "reconciliation_jobs"
 
     id = Column(Integer, primary_key=True, index=True)
+    device_id = Column(String, index=True, nullable=True)
+    client_name = Column(String, nullable=True)
     filename_bank = Column(String)
     filename_ledger = Column(String)
     total_bank_records = Column(Integer)

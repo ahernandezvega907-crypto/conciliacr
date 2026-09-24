@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
+  TextInput,
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
@@ -20,10 +21,12 @@ export default function UploadScreen({ navigation }: Props) {
   const {
     bankFile,
     ledgerFile,
+    clientName,
     isLoading,
     error,
     setBankFile,
     setLedgerFile,
+    setClientName,
     runReconciliation,
   } = useReconciliationStore();
 
@@ -90,6 +93,17 @@ export default function UploadScreen({ navigation }: Props) {
         >
           <Text style={styles.historyButtonText}>Historial</Text>
         </TouchableOpacity>
+      </View>
+
+      <View style={styles.fileButton}>
+        <Text style={styles.fileButtonLabel}>Nombre del cliente (opcional)</Text>
+        <TextInput
+          style={styles.clientInput}
+          placeholder="Ej. Restaurante El Recuerdo"
+          placeholderTextColor="#9CA3AF"
+          value={clientName}
+          onChangeText={setClientName}
+        />
       </View>
 
       <TouchableOpacity style={styles.fileButton} onPress={() => pickFile('bank')}>
@@ -189,6 +203,11 @@ const styles = StyleSheet.create({
   fileName: {
     fontSize: 15,
     color: '#111827',
+  },
+  clientInput: {
+    fontSize: 15,
+    color: '#111827',
+    paddingVertical: 4,
   },
   errorText: {
     color: '#DC2626',

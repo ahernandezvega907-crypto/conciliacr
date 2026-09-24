@@ -101,7 +101,14 @@ export default function HistoryScreen({ navigation }: Props) {
         }
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Text style={styles.cardDate}>{formatDate(item.created_at)}</Text>
+            <View style={styles.cardTopRow}>
+              <Text style={styles.cardDate}>{formatDate(item.created_at)}</Text>
+              {item.client_name && (
+                <View style={styles.clientBadge}>
+                  <Text style={styles.clientBadgeText}>{item.client_name}</Text>
+                </View>
+              )}
+            </View>
             <Text style={styles.cardFiles} numberOfLines={1}>
               {item.filename_bank} ↔ {item.filename_ledger}
             </Text>
@@ -185,10 +192,26 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E5E7EB',
   },
+  cardTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   cardDate: {
     fontSize: 12,
     color: '#9CA3AF',
-    marginBottom: 4,
+  },
+  clientBadge: {
+    backgroundColor: '#EFF6FF',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  clientBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#2563EB',
   },
   cardFiles: {
     fontSize: 14,

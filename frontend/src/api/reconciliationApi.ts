@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { ReconciliationResult, PickedFile, HistoryEntry } from '../types/reconciliation.types';
+import { getDeviceId } from '../store/useDeviceId';
 
 const API_BASE_URL = 'https://conciliacr-api.onrender.com';
 
@@ -10,8 +11,10 @@ export const reconciliationApi = axios.create({
 
 export async function reconcileFiles(
   bankFile: PickedFile,
-  ledgerFile: PickedFile
+  ledgerFile: PickedFile,
+  clientName?: string
 ): Promise<ReconciliationResult> {
+  const deviceId = await getDeviceId();
   const formData = new FormData();
 
   formData.append('bank_statement', {
@@ -26,6 +29,11 @@ export async function reconcileFiles(
     type: ledgerFile.mimeType ?? 'application/octet-stream',
   } as unknown as Blob);
 
+  formData.append('device_id', deviceId);
+  if (clientName?.trim()) {
+    formData.append('client_name', clientName.trim());
+  }
+
   const response = await reconciliationApi.post<ReconciliationResult>(
     '/reconcile',
     formData,
@@ -36,6 +44,9 @@ export async function reconcileFiles(
 }
 
 export async function fetchHistory(): Promise<HistoryEntry[]> {
-  const response = await reconciliationApi.get<HistoryEntry[]>('/history');
+  const deviceId = await getDeviceId();
+  const response = await reconciliationApi.get<HistoryEntry[]>('/history', {
+    params: { device_id: deviceId },
+  });
   return response.data;
 }
